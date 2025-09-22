@@ -4,45 +4,39 @@ import fetch from "node-fetch";
 const app = express();
 app.use(express.json());
 
-const token = process.env.TELEGRAM_TOKEN;
-const chatId = process.env.TELEGRAM_CHAT_ID;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-// Funkcija siųsti žinutę į Telegram
-async function sendTelegramMessage(text) {
-  if (!token || !chatId) {
-    console.error("❌ Telegram API raktai nesuvesti.");
-    return;
-  }
+app.post("/telegram-webhook", async (req, res) => {
+  const message = req.body.message;
 
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text }),
-  });
-}
+  if (message) {
+    const chatId = message.chat.id;
 
-// PayPal webhook endpoint
-app.post("/paypal-webhook", async (req, res) => {
-  console.log("=== Webhook gautas ===");
-  console.log("Webhook data:", req.body);
+    // Išmest į logus, kad matytum
+    console.log("Gautas chat.id:", chatId);
 
-  try {
-    await sendTelegramMessage(
-      `💰 Gautas PayPal webhook: ${JSON.stringify(req.body)}`
-    );
-  } catch (err) {
-    console.error("❌ Klaida siunčiant į Telegram:", err);
+    // Atsakyti į Telegram, kad viskas veikia
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: `Tavo chat.id yra: ${chatId}`,
+      }),
+    });
   }
 
   res.sendStatus(200);
 });
 
-// Testinis endpoint
-app.get("/", (req, res) => {
-  res.send("✅ Serveris veikia 🚀");
+// PayPal webhook pavyzdys
+app.post("/paypal-webhook", (req, res) => {
+  console.log("PayPal webhook data:", req.body);
+  res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`🚀 Serveris paleistas ant porto ${PORT}`);
+  console.log(`Serveris paleistas ant porto ${PORT}`);
 });
