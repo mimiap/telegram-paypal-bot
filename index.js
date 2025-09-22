@@ -40,3 +40,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Serveris paleistas ant porto ${PORT}`);
 });
+console.log("Webhook data:", req.body);
