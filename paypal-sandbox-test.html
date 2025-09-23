@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <title>PayPal Sandbox Test</title>
+  <script src="https://www.paypal.com/sdk/js?client-id=ASu_Z0Z9m-rCh7AVMc3HlGEgDOrKQupmw2UP6FJOXbLa9VyZ7Ah7FHzDIzwyiXIvqzbCLt6HkW-LOisp&currency=EUR"></script>
+</head>
+<body>
+  <h2>PayPal Sandbox Test Mygtukas</h2>
+  <p>Paspausk mygtuką ir atlik testinį mokėjimą.</p>
+
+  <div id="paypal-button-container"></div>
+
+  <script>
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: '5.00' // Testinis mokestis 5 EUR
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('Mokėjimas sėkmingas! Ačiū, ' + details.payer.name.given_name);
+          console.log(details);
+        });
+      },
+      onError: function(err) {
+        console.error('Klaida:', err);
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>
