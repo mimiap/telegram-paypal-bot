@@ -1,51 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt">
 <head>
   <meta charset="UTF-8">
-  <title>PayPal Sandbox Test</title>
-  <!-- PayPal SDK su tavo Sandbox Client ID -->
-  <script src="https://www.paypal.com/sdk/js?client-id=ASu_Z0Z9m-rCh7AVMc3HlGEgDOrKQupmw2UP6FJOXbLa9VyZ7Ah7FHzDIzwyiXIvqzbCLt6HkW-LOisp&currency=EUR"></script>
+  <title>PayPal Webhook testas</title>
 </head>
 <body>
-  <h2>PayPal Sandbox mokėjimo testas</h2>
-  <div id="paypal-button-container"></div>
-
-  <script>
-    paypal.Buttons({
-      // Sukuriame užsakymą
-      createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{
-            amount: { value: '5.00' } // 5 EUR testinis mokėjimas
-          }]
-        });
-      },
-
-      // Kai pirkėjas patvirtina apmokėjimą
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Mokėjimą atliko: ' + details.payer.name.given_name);
-
-          // Išsiunčiame duomenis į tavo serverį (webhooką)
-          fetch('/paypal-webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(details)
-          }).then(res => console.log("Webhook response:", res));
-        });
-      },
-
-      // Jei vartotojas atšaukia
-      onCancel: function (data) {
-        alert("Mokėjimas atšauktas");
-      },
-
-      // Jei įvyko klaida
-      onError: function (err) {
-        console.error(err);
-        alert("Įvyko klaida: " + err);
-      }
-    }).render('#paypal-button-container');
-  </script>
+  <h1>Webhook testas</h1>
+  <form id="webhookForm" method="POST" action="/paypal-webhook">
+    <textarea name="testData" rows="6" cols="40">
+{ "event": "PAYMENT.SALE.COMPLETED", "amount": "10.00", "currency": "EUR" }
+    </textarea><br><br>
+    <button type="submit">Siųsti POST į webhook</button>
+  </form>
 </body>
 </html>
